@@ -13,6 +13,7 @@ public class Interractable : MonoBehaviour
     public bool sliceAble;
     public bool placAble;
     public bool rollAble;
+    public bool readAble;
     public bool pickable=true;
     public string displayName;
 }

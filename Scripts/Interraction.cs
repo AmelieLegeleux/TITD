@@ -14,6 +14,7 @@ public class Interraction : NetworkBehaviour
     public GameObject viseur;
     public GameObject ObjstartPosition;
     public GameObject objetTouche;
+    private GameObject heavyBox;
 
     // Use this for initialization
     void Start()
@@ -22,6 +23,7 @@ public class Interraction : NetworkBehaviour
         {
             modifications = GameObject.Find("LocalGameSystem").GetComponent<UNETSyncObjects>();
         }
+        heavyBox = GameObject.Find("BoxToBreak");
     }
 
     // Update is called once per frame
@@ -57,12 +59,29 @@ public class Interraction : NetworkBehaviour
                 }
                 */
             }
+            if (Input.GetKey(KeyCode.E))
+            {
+                if (objetTouche != null)
+                {
+                    if (objetTouche.GetComponent<Interractable>().pickable && objetTouche == heavyBox)
+                    {
+                        GetComponent<PlayerController>().anim.SetFloat("Idle", 3);
+                        GetComponent<PlayerController>().anim.SetFloat("Walk", 2);
+                    }
+                }
+            }
             if (Input.GetKeyDown(KeyCode.E))
             {
                 if (objetTouche != null)
                 {
                     Interractable inter = objetTouche.GetComponent<Interractable>();
                     NetworkInstanceId myNetID = GetComponent<NetworkIdentity>().netId;
+                    if (inter.pickable && objetTouche == heavyBox)
+                    {
+                        heavyBox.GetComponent<CasseCaisse>().incrPlayer();
+                        heavyBox.GetComponent<CasseCaisse>().slice();
+                    }
+
                     if (inter.moveAble && inter.pickable)
                     {
                         GameObject.Find("Obj_transporte").GetComponent<Text>().text = inter.interract ? "" : inter.displayName;
@@ -77,6 +96,7 @@ public class Interraction : NetworkBehaviour
                         afficheNom("", 0);
                         inter.player = gameObject;
                         inInterraction = true;
+                        
                     }
                     if (inter.clickAble) { 
                         objetTouche.GetComponent<Action>().click();
@@ -89,16 +109,30 @@ public class Interraction : NetworkBehaviour
                         inter.player = gameObject;
                         inInterraction = true;
                     }
+
+                    if (inter.readAble)
+                    {
+                        objetTouche.GetComponent<ReadAble>().Activate(objetTouche);
+                        objetTouche.GetComponent<ReadAble>().Activate(GetComponent<PlayerComponents>().obj[0]);
+                    }
                 }
             }
             if (Input.GetKeyUp(KeyCode.E))
             {
+                GetComponent<PlayerController>().anim.SetFloat("Idle", 0);
+                GetComponent<PlayerController>().anim.SetFloat("Walk", 0);
                 if (objetTouche != null)
                 {
                     Interractable inter = objetTouche.GetComponent<Interractable>();
-
+                    if (objetTouche == heavyBox)
+                    {
+                        heavyBox.GetComponent<CasseCaisse>().decrPlayer();
+                        heavyBox.GetComponent<CasseCaisse>().slice();
+                    }
+                
                     if (inter.sliceAble)
                     {
+
                         objetTouche.GetComponent<Interractable>().player = null;
                         modifications.add(objetTouche, NetworkInstanceId.Invalid,ToDo.slice);
                         objetTouche = null;

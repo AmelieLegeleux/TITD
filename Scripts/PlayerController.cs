@@ -24,6 +24,10 @@ public class PlayerController : NetworkBehaviour
     public Camera maCamera;
     public GameObject corps;
     public GameObject head;
+    private bool displayHelp;
+    private bool availableChat;
+    private bool activeChat;
+    private Help help;
     
 
     public Animator True { get; private set; }
@@ -47,6 +51,10 @@ public class PlayerController : NetworkBehaviour
         mass = (int)GetComponent<Rigidbody>().mass;
         force = 70;
         vectorTrans.Set(0, 0, 0);
+        displayHelp = false;
+        availableChat = true;
+        activeChat = false;
+        help = GetComponent<Help>();
     }
 
     private void afficheSourie(bool etat)
@@ -59,6 +67,24 @@ public class PlayerController : NetworkBehaviour
 	{
 		if (isLocalPlayer)
 		{
+            if(!activeChat && Input.GetKeyDown(KeyCode.H))
+            {
+                if(displayHelp)
+                {
+                    help.CloseHelp();
+                    enableMove = true;
+                    availableChat = true;
+                }
+                else
+                {
+                    enableMove = false;
+                    availableChat = false;
+                    help.DisplayHelp();
+                }
+                displayHelp = !displayHelp;
+            }
+
+
 			if (enableMove)
 			{
 				// Mouvement translation
@@ -106,7 +132,6 @@ public class PlayerController : NetworkBehaviour
 //                maCamera.transform.rotation = Quaternion.Euler(xRotation, yRotation, 0);
 			}
 
-
             //sur appuis de escape, on active/desactive la sourie
             if (Input.GetKeyDown(KeyCode.Escape))
             {
@@ -114,18 +139,20 @@ public class PlayerController : NetworkBehaviour
             }
 
             //sur appuis de la touche entrée
-            if (Input.GetKeyDown(KeyCode.KeypadEnter) || Input.GetKeyDown(KeyCode.Return))
+            if ((Input.GetKeyDown(KeyCode.KeypadEnter) || Input.GetKeyDown(KeyCode.Return)) && availableChat)
             {
                 string textChat = GameObject.Find("InputFieldChat").GetComponent<InputField>().text;
                 if (textChat != "")
                 {
                     enableMove = true;
+                    activeChat = false;
                     GameObject.Find("Chat").GetComponent<Chat>().SendMessage(GameObject.Find("InputFieldChat").GetComponent<InputField>());
                     GameObject.Find("InputFieldChat").GetComponent<InputField>().text = "";
                 }
                 else
                 {
                     enableMove = false;
+                    activeChat = true;
                     GameObject.Find("InputFieldChat").GetComponent<InputField>().ActivateInputField();
                 }
             }

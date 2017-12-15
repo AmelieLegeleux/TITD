@@ -123,6 +123,7 @@ public class UNETObjectHandler : NetworkBehaviour
         obj.SetActive(active);
     }
 
+
     [Command]// (serveur)
     public void CmdAddLocalAuthority(GameObject obj)
     {

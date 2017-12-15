@@ -8,21 +8,21 @@ public class CasseCaisse : NetworkBehaviour
     public GameObject planks;
     public GameObject scroll;
     public GameObject dust;
+    public int playerInteract;
 
     private void Start()
     {
-        activate(false);
+        floor = GameObject.Find("Decors").gameObject.transform.Find("Plane").gameObject;
+        playerInteract = 0;
+        activate("false");
+        slice();
     }
 
-    private void activate(bool active)
+    private void activate(string boolean)
     {
-        string boolean = (active ? "true" : "false");
-        GameObject.Find("LocalGameSystem").GetComponent<UNETSyncObjects>().add(dust.GetComponent<NetworkIdentity>().netId, ToDo.activate, boolean);
+        GameObject.Find("LocalGameSystem").GetComponent<UNETSyncObjects>().add(dust, ToDo.activate, boolean);
         GameObject.Find("LocalGameSystem").GetComponent<UNETSyncObjects>().add(planks, ToDo.activate, boolean);
         GameObject.Find("LocalGameSystem").GetComponent<UNETSyncObjects>().add(scroll, ToDo.activate, boolean);
-        /*dust.SetActive(active);
-        planks.SetActive(active);
-        scroll.SetActive(active);*/
 
     }
     private void OnCollisionEnter(UnityEngine.Collision collision)
@@ -33,8 +33,30 @@ public class CasseCaisse : NetworkBehaviour
             dust.transform.position = new Vector3(gameObject.transform.position.x, 0.1f, gameObject.transform.position.z);
             planks.transform.position = new Vector3(gameObject.transform.position.x, 0.1f, gameObject.transform.position.z);
             scroll.transform.position = new Vector3(gameObject.transform.position.x, 0.1f, gameObject.transform.position.z);
-            activate(true);
+            activate("true");
             GameObject.Find("LocalGameSystem").GetComponent<UNETSyncObjects>().add(gameObject, ToDo.destroy, "true");
+        }
+    }
+
+    public void incrPlayer()
+    {
+        playerInteract++;
+    }
+
+    public void decrPlayer()
+    {
+        playerInteract--;
+    }
+
+    public void slice()
+    {
+        if (playerInteract == 1)
+        {
+            GetComponent<MouseDrag>().kinemativity = false;
+        }
+        else
+        {
+            GetComponent<MouseDrag>().kinemativity = true;
         }
     }
 }

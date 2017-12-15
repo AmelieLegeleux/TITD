@@ -45,6 +45,5 @@ public class Chat : MonoBehaviour
     }
 
     public virtual void SendMessage(InputField input){}
-
 }
 
